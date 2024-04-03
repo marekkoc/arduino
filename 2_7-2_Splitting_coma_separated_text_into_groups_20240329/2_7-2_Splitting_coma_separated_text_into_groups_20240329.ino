@@ -1,57 +1,45 @@
 /*
 Book: 2020#Margolis_Arduino-Cookbook.pdf
-Chapter 2.7: page:56
+Chapter 2.7: page:58 
 
-Sketch: Splitting-comma-separated-textinto-groups
+Sketch: Splitting-comma-separated-textinto-groups. (ver 2)
+
 
 * SplitText sketch
 * split a comma-separated string
+* second version of the script, with the use of low-level functions from C library.
  
 * My modification:
 * my modification, just to play with it
 
 
 MK:
-C:2024.03.29
-M:2020.03.29
+C:2024.03.31
+M:2020.03.31
 */
 
-String text = "Peter,Paul,Mary"; // an example string
-String message = text; // holds text not yet split
-int commaPosition; // the position of the next comma in the string
+const int MAX_STRIN_LEN = 20; //set this to the largest string you will process
+char  stringList[] = "Peter;Paul,Mary"; // an example string
+char stringBuffer[MAX_STRIN_LEN+1]; // static buffer for computation/output
 
-void setup() 
+
+void setup()
 {
-  // put your setup code here, to run once:
   Serial.begin(9600);
-  while(!Serial)
+  while(!Serial); // Wait for serial port (Leonardo, 32-bit boards)
+  
+  char *str;
+  char *p;
+
+  strncpy(stringBuffer, stringList, MAX_STRIN_LEN); // copy source string to stringBuffer, 
+  Serial.println(stringBuffer); // show the source string, containted in the buffer now
+
+  for( str=strtok_r(stringBuffer, ",", &p); // split using comma,
+       str;                                 // while str in snot null
+       str=strtok_r(NULL, ",", &p))         // get subsequent tokens
   {
-    Serial.println("Loading serial port");
-  }; // Wait for serial port (Leonardo, 32-bit boards)
-
-
-  Serial.println(message); // show the source string
-  do
-  {
-    commaPosition = message.indexOf(',');
-    if(commaPosition != -1)
-    {
-      Serial.println((message.substring(0,commaPosition))); // print the current subtext
-      message = message.substring(commaPosition+1, message.length()); // creates a new message without the current text
-
-      Serial.print("commaPosition: ");
-      Serial.println(commaPosition);
-      Serial.print("Message left: ");
-      Serial.println(message);
-    }
-    else
-    {
-      // here after the last comma is found
-      if(message.length() > 0)
-      Serial.println(message); // if there is thext after the last comms, print it
-    }
+    Serial.println(str);
   }
-  while(commaPosition >= 0);
 }
 
 void loop() {
